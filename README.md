@@ -1,8 +1,16 @@
-# challenge
-Challenge
+# En-try challenge
 
-step1: Open your cmd in directory "Challenge"
+## Installation
 
-step2: run "node challenge.js"
+Install nodejs
 
-required: You installed Nodejs. 
+```bash
+https://nodejs.org/en/download
+```
+
+## Usage
+
+```cmd
+cd ./challenge
+node challenge.js
+```
