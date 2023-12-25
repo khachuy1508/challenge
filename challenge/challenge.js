@@ -1,171 +1,119 @@
-const readline = require("readline");
-const users = require("./data/users.json");
-const tickets = require("./data/tickets.json");
-const organizations = require("./data/organizations.json");
-const listOfSearchableFields = require("./data/listOfSearchableFields.json");
-const LIST_ORG_ARRAY_FIELDS = ["domain_names", "tags"];
-const LIST_USER_ARRAY_FIELDS = ["tags"];
-
-const SEARCH_TYPE = {
-  users: "1",
-  organizations: "2",
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var readline = require("readline");
+var users = require("./data/users.json");
+var tickets = require("./data/tickets.json");
+var organizations = require("./data/organizations.json");
+var listOfSearchableFields = require("./data/listOfSearchableFields.json");
+var userData = users;
+var ticketsData = tickets;
+var organizationsData = organizations;
+var SEARCH_TYPE = {
+    users: "1",
+    organizations: "2",
+    ticket: "3",
 };
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
+var rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
 });
-
-const getListSearchableFields = (searchBy) => {
-  return listOfSearchableFields[searchBy];
+var getListSearchableFields = function (searchBy) {
+    return listOfSearchableFields[searchBy];
 };
-
-const getFieldSearchArray = (array, fieldSearch, searchText) => {
-  return array.filter((item) => item[fieldSearch].includes(searchText));
-};
-
-const getFieldSearchText = (array, fieldSearch, searchText) => {
-  return array.filter((item) => item[fieldSearch] == searchText);
-};
-
-const getListOrg = (fieldSearch, searchText) => {
-  if (LIST_ORG_ARRAY_FIELDS.includes(fieldSearch))
-    return getFieldSearchArray(organizations, fieldSearch, searchText);
-
-  return getFieldSearchText(organizations, fieldSearch, searchText);
-};
-
-const searchOrg = (fieldSearch, searchText) => {
-  return getListOrg(fieldSearch, searchText).map((org) => {
-    const ticket_subject = [];
-    const users_name = [];
-
-    tickets.forEach((ticket) => {
-      if (ticket["organization_id"] === org["_id"])
-        ticket_subject.push(ticket["subject"]);
+var getData = function (array, fieldSearch, searchText, getByField) {
+    var resultData = array.filter(function (item) {
+        var _a, _b;
+        console.log("1111", fieldSearch, searchText, item[fieldSearch], typeof item[fieldSearch]);
+        return typeof item[fieldSearch] === "object"
+            ? (_a = item[fieldSearch]) === null || _a === void 0 ? void 0 : _a.includes(searchText)
+            : ((_b = item[fieldSearch]) === null || _b === void 0 ? void 0 : _b.toString()) === (searchText === null || searchText === void 0 ? void 0 : searchText.toString());
     });
-
-    users.forEach((user) => {
-      if (user["organization_id"] === org["_id"]) users_name.push(user["name"]);
+    return getByField ? resultData.map(function (item) { return item[getByField]; }) : resultData;
+};
+var searchOrg = function (fieldSearch, searchText) {
+    return getData(organizationsData, fieldSearch, searchText).map(function (org) {
+        org["users_name"] = getData(userData, "organization_id", org["_id"], "name");
+        org["ticket_subject"] = getData(ticketsData, "organization_id", org["_id"], "subject");
+        return org;
     });
-    org["ticket_subject"] = ticket_subject;
-    org["users_name"] = users_name;
-
-    return org;
-  });
 };
-
-const getListUser = (fieldSearch, searchText) => {
-  if (LIST_USER_ARRAY_FIELDS.includes(fieldSearch))
-    return getFieldSearchArray(users, fieldSearch, searchText);
-
-  return getFieldSearchText(users, fieldSearch, searchText);
-};
-
-const searchUser = (fieldSearch, searchText) => {
-  return getListUser(fieldSearch, searchText).map((user) => {
-    const assignee_name = [];
-    const submitter_name = [];
-    const organization_name = organizations.find(
-      (org) => org["_id"] == user["organization_id"]
-    )["name"];
-
-    tickets.forEach((ticket) => {
-      if (ticket["assignee_id"] == user["_id"]) {
-        assignee_name.push(ticket["subject"]);
-      }
-      if (ticket["submitter_id"] == user["_id"]) {
-        submitter_name.push(ticket["subject"]);
-      }
+var searchUser = function (fieldSearch, searchText) {
+    return getData(userData, fieldSearch, searchText).map(function (user) {
+        user["assignee_ticket_subject"] = getData(ticketsData, "assignee_id", user["_id"], "subject");
+        user["submitted_ticket_subject"] = getData(ticketsData, "submitter_id", user["_id"], "subject");
+        user["organization_name"] = getData(organizationsData, "_id", user["organization_id"], "name");
+        return user;
     });
-
-    user["assignee_name"] = assignee_name;
-    user["submitter_name"] = submitter_name;
-
-    user["organization_name"] = organization_name;
-    return user;
-  });
 };
-
-const printResult = (data) => {
-  console.log(data.length ? data : "No search result found");
-
-  rl.question(
-    "Do you want to continue, type 'Y' for continue, any key for quit. \n",
-    (ans) => {
-      if (ans == "y" || ans == "Y") startApp();
-      else rl.close();
-    }
-  );
-};
-
-const getSearchField = (searchBy) => {
-  rl.question("Enter search term  \n", (term) => {
-    rl.question("Enter search value  \n", (search) => {
-      switch (searchBy) {
-        case "users":
-          printResult(searchUser(term, search));
-
-          break;
-
-        case "organizations":
-          printResult(searchOrg(term, search));
-          break;
-
-        default:
-          break;
-      }
+var searchTicket = function (fieldSearch, searchText) {
+    return getData(ticketsData, fieldSearch, searchText).map(function (ticket) {
+        ticket["assignee_name"] = getData(userData, "_id", ticket["assignee_id"], "name");
+        ticket["submitter_name"] = getData(userData, "_id", ticket["submitter_id"], "name");
+        ticket["organization_name"] = getData(organizationsData, "_id", ticket["organization_id"], "name");
+        return ticket;
     });
-  });
 };
-
-const checkAction = (searchBy) => {
-  rl.question(
-    "Select search options \n - Press 1 to search \n - Press 2 to view a list of searchable fields \n - Type 'quit' to exit \n",
-    (search) => {
-      switch (search) {
-        case "quit":
-          rl.close();
-          break;
-
-        case "1":
-          getSearchField(searchBy);
-          break;
-
-        case "2":
-          console.log(
-            `List of searchable fields by ${searchBy}: ${getListSearchableFields(
-              searchBy
-            ).toString()}`
-          );
-          rl.close();
-
-        default:
-          console.log("Invalid search");
-          rl.close();
-          break;
-      }
-    }
-  );
+var printResult = function (data) {
+    console.log(data.length ? data : "No search result found");
+    rl.question("Do you want to continue, type 'Y' for continue, any key for quit. \n", function (ans) {
+        if (ans == "y" || ans == "Y")
+            startApp();
+        else
+            rl.close();
+    });
 };
-
-const startApp = () => {
-  rl.question(
-    "Select search by \n - Press 1 to search by 'Users'  \n - Press 2 to search by 'Organizations' \n",
-    (searchBy) => {
-      switch (searchBy) {
-        case SEARCH_TYPE.users:
-          return checkAction("users");
-        case SEARCH_TYPE.organizations:
-          return checkAction("organizations");
-
-        default:
-          console.log("Invalid search");
-          rl.close();
-          break;
-      }
-    }
-  );
+var getSearchField = function (searchBy) {
+    rl.question("Enter search term  \n", function (term) {
+        rl.question("Enter search value  \n", function (search) {
+            switch (searchBy) {
+                case "users":
+                    printResult(searchUser(term, search));
+                    break;
+                case "organizations":
+                    printResult(searchOrg(term, search));
+                    break;
+                case "tickets":
+                    printResult(searchTicket(term, search));
+                    break;
+                default:
+                    break;
+            }
+        });
+    });
 };
-
+var checkAction = function (searchBy) {
+    rl.question("Select search options \n - Press 1 to search \n - Press 2 to view a list of searchable fields \n - Type 'quit' to exit \n", function (search) {
+        switch (search) {
+            case "quit":
+                rl.close();
+                break;
+            case "1":
+                getSearchField(searchBy);
+                break;
+            case "2":
+                console.log("List of searchable fields by ".concat(searchBy, ": ").concat(getListSearchableFields(searchBy).toString()));
+                rl.close();
+            default:
+                console.log("Invalid search");
+                rl.close();
+                break;
+        }
+    });
+};
+var startApp = function () {
+    rl.question("Select search by \n - Press 1 to search by 'Users'  \n - Press 2 to search by 'Organizations' \n - Press 3 to search by 'Tickets' \n ", function (searchBy) {
+        switch (searchBy) {
+            case SEARCH_TYPE.users:
+                return checkAction("users");
+            case SEARCH_TYPE.organizations:
+                return checkAction("organizations");
+            case SEARCH_TYPE.ticket:
+                return checkAction("tickets");
+            default:
+                console.log("Invalid search");
+                rl.close();
+                break;
+        }
+    });
+};
 startApp();
