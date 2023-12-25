@@ -11,6 +11,7 @@ https://nodejs.org/en/download
 ## Usage
 
 ```cmd
+npm install
 cd ./challenge
 node challenge.js
 ```
