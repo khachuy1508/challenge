@@ -23,7 +23,6 @@ var getListSearchableFields = function (searchBy) {
 var getData = function (array, fieldSearch, searchText, getByField) {
     var resultData = array.filter(function (item) {
         var _a, _b;
-        console.log("1111", fieldSearch, searchText, item[fieldSearch], typeof item[fieldSearch]);
         return typeof item[fieldSearch] === "object"
             ? (_a = item[fieldSearch]) === null || _a === void 0 ? void 0 : _a.includes(searchText)
             : ((_b = item[fieldSearch]) === null || _b === void 0 ? void 0 : _b.toString()) === (searchText === null || searchText === void 0 ? void 0 : searchText.toString());

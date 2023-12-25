@@ -8,7 +8,6 @@ import { Organizations, Ticket, User } from "./dto";
 const userData = users as User[];
 const ticketsData = tickets as Ticket[];
 const organizationsData = organizations as Organizations[];
-
 const SEARCH_TYPE = {
   users: "1",
   organizations: "2",
@@ -31,13 +30,6 @@ const getData = (
   getByField?: string
 ) => {
   const resultData = array.filter((item) => {
-    console.log(
-      "1111",
-      fieldSearch,
-      searchText,
-      item[fieldSearch],
-      typeof item[fieldSearch]
-    );
     return typeof item[fieldSearch] === "object"
       ? item[fieldSearch]?.includes(searchText)
       : item[fieldSearch]?.toString() === searchText?.toString();
@@ -115,7 +107,7 @@ const searchTicket = (fieldSearch: string, searchText: string | number) => {
   });
 };
 
-const printResult = (data) => {
+const printResult = (data: any[]) => {
   console.log(data.length ? data : "No search result found");
 
   rl.question(
@@ -127,9 +119,9 @@ const printResult = (data) => {
   );
 };
 
-const getSearchField = (searchBy) => {
-  rl.question("Enter search term  \n", (term) => {
-    rl.question("Enter search value  \n", (search) => {
+const getSearchField = (searchBy: string) => {
+  rl.question("Enter search term  \n", (term: string) => {
+    rl.question("Enter search value  \n", (search: string) => {
       switch (searchBy) {
         case "users":
           printResult(searchUser(term, search));
@@ -154,7 +146,7 @@ const getSearchField = (searchBy) => {
 const checkAction = (searchBy: string) => {
   rl.question(
     "Select search options \n - Press 1 to search \n - Press 2 to view a list of searchable fields \n - Type 'quit' to exit \n",
-    (search) => {
+    (search: string) => {
       switch (search) {
         case "quit":
           rl.close();
@@ -184,7 +176,7 @@ const checkAction = (searchBy: string) => {
 const startApp = () => {
   rl.question(
     "Select search by \n - Press 1 to search by 'Users'  \n - Press 2 to search by 'Organizations' \n - Press 3 to search by 'Tickets' \n ",
-    (searchBy) => {
+    (searchBy: string) => {
       switch (searchBy) {
         case SEARCH_TYPE.users:
           return checkAction("users");
