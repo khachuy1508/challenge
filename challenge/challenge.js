@@ -4,7 +4,7 @@ var readline = require("readline");
 var users = require("./data/users.json");
 var tickets = require("./data/tickets.json");
 var organizations = require("./data/organizations.json");
-var listOfSearchableFields = require("./data/listOfSearchableFields.json");
+var dto_1 = require("./dto");
 var userData = users;
 var ticketsData = tickets;
 var organizationsData = organizations;
@@ -13,12 +13,24 @@ var SEARCH_TYPE = {
     organizations: "2",
     ticket: "3",
 };
+var usersSearchableList = Object.keys(new dto_1.Organizations());
+var organizationsSearchableList = Object.keys(new dto_1.User());
+var ticketsSearchableList = Object.keys(new dto_1.Ticket());
 var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
 });
 var getListSearchableFields = function (searchBy) {
-    return listOfSearchableFields[searchBy];
+    switch (searchBy) {
+        case "users":
+            return usersSearchableList;
+        case "organizations":
+            return organizationsSearchableList;
+        case "tickets":
+            return ticketsSearchableList;
+        default:
+            break;
+    }
 };
 var getData = function (array, fieldSearch, searchText, getByField) {
     var resultData = array.filter(function (item) {
@@ -52,14 +64,17 @@ var searchTicket = function (fieldSearch, searchText) {
         return ticket;
     });
 };
-var printResult = function (data) {
-    console.log(data.length ? data : "No search result found");
+var checkContinue = function () {
     rl.question("Do you want to continue, type 'Y' for continue, any key for quit. \n", function (ans) {
         if (ans == "y" || ans == "Y")
             startApp();
         else
             rl.close();
     });
+};
+var printResult = function (data) {
+    console.log(data.length ? data : "No search result found");
+    checkContinue();
 };
 var getSearchField = function (searchBy) {
     rl.question("Enter search term  \n", function (term) {
@@ -82,6 +97,7 @@ var getSearchField = function (searchBy) {
 };
 var checkAction = function (searchBy) {
     rl.question("Select search options \n - Press 1 to search \n - Press 2 to view a list of searchable fields \n - Type 'quit' to exit \n", function (search) {
+        var _a;
         switch (search) {
             case "quit":
                 rl.close();
@@ -90,8 +106,9 @@ var checkAction = function (searchBy) {
                 getSearchField(searchBy);
                 break;
             case "2":
-                console.log("List of searchable fields by ".concat(searchBy, ": ").concat(getListSearchableFields(searchBy).toString()));
-                rl.close();
+                console.log("List of searchable fields by ".concat(searchBy, ": ").concat((_a = getListSearchableFields(searchBy)) === null || _a === void 0 ? void 0 : _a.toString()));
+                checkContinue();
+                break;
             default:
                 console.log("Invalid search");
                 rl.close();

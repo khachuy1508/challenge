@@ -1,6 +1,43 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Signature = exports.Role = exports.Locale = exports.Via = exports.Type = exports.Status = exports.Priority = void 0;
+exports.Signature = exports.Role = exports.Locale = exports.User = exports.Via = exports.Type = exports.Status = exports.Priority = exports.Ticket = exports.Organizations = void 0;
+var Organizations = /** @class */ (function () {
+    function Organizations(_id, url, external_id, name, domain_names, created_at, details, shared_tickets, tags) {
+        this._id = _id;
+        this.url = url;
+        this.external_id = external_id;
+        this.name = name;
+        this.domain_names = domain_names;
+        this.created_at = created_at;
+        this.details = details;
+        this.shared_tickets = shared_tickets;
+        this.tags = tags;
+    }
+    return Organizations;
+}());
+exports.Organizations = Organizations;
+var Ticket = /** @class */ (function () {
+    function Ticket(_id, url, external_id, created_at, type, subject, description, priority, status, submitter_id, assignee_id, organization_id, tags, has_incidents, due_at, via) {
+        this._id = _id;
+        this.url = url;
+        this.external_id = external_id;
+        this.created_at = created_at;
+        this.type = type;
+        this.subject = subject;
+        this.description = description;
+        this.priority = priority;
+        this.status = status;
+        this.submitter_id = submitter_id;
+        this.assignee_id = assignee_id;
+        this.organization_id = organization_id;
+        this.tags = tags;
+        this.has_incidents = has_incidents;
+        this.due_at = due_at;
+        this.via = via;
+    }
+    return Ticket;
+}());
+exports.Ticket = Ticket;
 var Priority;
 (function (Priority) {
     Priority["High"] = "high";
@@ -29,6 +66,31 @@ var Via;
     Via["Voice"] = "voice";
     Via["Web"] = "web";
 })(Via || (exports.Via = Via = {}));
+var User = /** @class */ (function () {
+    function User(_id, url, external_id, name, alias, created_at, active, verified, shared, locale, timezone, last_login_at, email, phone, signature, organization_id, tags, suspended, role) {
+        this._id = _id;
+        this.url = url;
+        this.external_id = external_id;
+        this.name = name;
+        this.alias = alias;
+        this.created_at = created_at;
+        this.active = active;
+        this.verified = verified;
+        this.shared = shared;
+        this.locale = locale;
+        this.timezone = timezone;
+        this.last_login_at = last_login_at;
+        this.email = email;
+        this.phone = phone;
+        this.signature = signature;
+        this.organization_id = organization_id;
+        this.tags = tags;
+        this.suspended = suspended;
+        this.role = role;
+    }
+    return User;
+}());
+exports.User = User;
 var Locale;
 (function (Locale) {
     Locale["DeCH"] = "de-CH";

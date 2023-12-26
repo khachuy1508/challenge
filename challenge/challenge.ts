@@ -2,7 +2,6 @@ const readline = require("readline");
 const users = require("./data/users.json");
 const tickets = require("./data/tickets.json");
 const organizations = require("./data/organizations.json");
-const listOfSearchableFields = require("./data/listOfSearchableFields.json");
 import { Organizations, Ticket, User } from "./dto";
 
 const userData = users as User[];
@@ -14,13 +13,29 @@ const SEARCH_TYPE = {
   ticket: "3",
 };
 
+const usersSearchableList = Object.keys(new Organizations());
+const organizationsSearchableList = Object.keys(new User());
+const ticketsSearchableList = Object.keys(new Ticket());
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
 const getListSearchableFields = (searchBy: string) => {
-  return listOfSearchableFields[searchBy];
+  switch (searchBy) {
+    case "users":
+      return usersSearchableList;
+
+    case "organizations":
+      return organizationsSearchableList;
+
+    case "tickets":
+      return ticketsSearchableList;
+
+    default:
+      break;
+  }
 };
 
 const getData = (
@@ -107,9 +122,7 @@ const searchTicket = (fieldSearch: string, searchText: string | number) => {
   });
 };
 
-const printResult = (data: any[]) => {
-  console.log(data.length ? data : "No search result found");
-
+const checkContinue = () => {
   rl.question(
     "Do you want to continue, type 'Y' for continue, any key for quit. \n",
     (ans: string) => {
@@ -117,6 +130,12 @@ const printResult = (data: any[]) => {
       else rl.close();
     }
   );
+};
+
+const printResult = (data: any[]) => {
+  console.log(data.length ? data : "No search result found");
+
+  checkContinue();
 };
 
 const getSearchField = (searchBy: string) => {
@@ -160,9 +179,10 @@ const checkAction = (searchBy: string) => {
           console.log(
             `List of searchable fields by ${searchBy}: ${getListSearchableFields(
               searchBy
-            ).toString()}`
+            )?.toString()}`
           );
-          rl.close();
+          checkContinue();
+          break;
 
         default:
           console.log("Invalid search");
