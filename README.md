@@ -13,5 +13,6 @@ https://nodejs.org/en/download
 ```cmd
 npm install
 cd ./challenge
+tsc challenge.ts
 node challenge.js
 ```
